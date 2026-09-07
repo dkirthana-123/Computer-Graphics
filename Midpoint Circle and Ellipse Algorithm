@@ -1,0 +1,131 @@
+import matplotlib.pyplot as plt
+
+
+# Midpoint Circle Algorithm
+def midpoint_circle(xc, yc, r):
+    points = []
+
+    x = 0
+    y = r
+    p = 1 - r
+
+    while x <= y:
+        points += [
+            (xc + x, yc + y),
+            (xc - x, yc + y),
+            (xc + x, yc - y),
+            (xc - x, yc - y),
+            (xc + y, yc + x),
+            (xc - y, yc + x),
+            (xc + y, yc - x),
+            (xc - y, yc - x)
+        ]
+
+        x += 1
+
+        if p < 0:
+            p += 2 * x + 1
+        else:
+            y -= 1
+            p += 2 * (x - y) + 1
+
+    return points
+
+
+# Midpoint Ellipse Algorithm
+def midpoint_ellipse(xc, yc, rx, ry):
+    points = []
+
+    x = 0
+    y = ry
+
+    rx2 = rx * rx
+    ry2 = ry * ry
+
+    dx = 2 * ry2 * x
+    dy = 2 * rx2 * y
+
+    p1 = ry2 - rx2 * ry + 0.25 * rx2
+
+    # Region 1
+    while dx < dy:
+        points += [
+            (xc + x, yc + y),
+            (xc - x, yc + y),
+            (xc + x, yc - y),
+            (xc - x, yc - y)
+        ]
+
+        x += 1
+        dx = 2 * ry2 * x
+
+        if p1 < 0:
+            p1 += dx + ry2
+        else:
+            y -= 1
+            dy = 2 * rx2 * y
+            p1 += dx - dy + ry2
+
+    # Region 2
+    p2 = (
+        ry2 * (x + 0.5) ** 2
+        + rx2 * (y - 1) ** 2
+        - rx2 * ry2
+    )
+
+    while y >= 0:
+        points += [
+            (xc + x, yc + y),
+            (xc - x, yc + y),
+            (xc + x, yc - y),
+            (xc - x, yc - y)
+        ]
+
+        y -= 1
+        dy = 2 * rx2 * y
+
+        if p2 > 0:
+            p2 += rx2 - dy
+        else:
+            x += 1
+            dx = 2 * ry2 * x
+            p2 += dx - dy + rx2
+
+    return points
+
+
+# Generate shapes
+circle = midpoint_circle(0, 0, 5)
+ellipse = midpoint_ellipse(0, 0, 7, 4)
+
+
+# Plot Circle
+plt.figure(figsize=(6, 6))
+
+x = [p[0] for p in circle]
+y = [p[1] for p in circle]
+
+plt.scatter(x, y, s=50)
+plt.title("Midpoint Circle Algorithm")
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.grid(True)
+plt.axis("equal")
+
+
+# Plot Ellipse
+plt.figure(figsize=(7, 5))
+
+x = [p[0] for p in ellipse]
+y = [p[1] for p in ellipse]
+
+plt.scatter(x, y, s=50)
+plt.title("Midpoint Ellipse Algorithm")
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.grid(True)
+plt.axis("equal")
+
+plt.show()
+
+
