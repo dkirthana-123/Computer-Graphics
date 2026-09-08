@@ -1,0 +1,44 @@
+import matplotlib.pyplot as plt
+
+# Starting and ending points
+x1, y1 = 1, 2
+x2, y2 = 9, 7
+
+dx = x2 - x1
+dy = y2 - y1
+
+x = x1
+y = y1
+
+p = 2 * dy - dx
+pixels = []
+
+while x <= x2:
+    pixels.append((x, y))
+
+    x += 1
+
+    if p < 0:
+        p += 2 * dy
+    else:
+        y += 1
+        p += 2 * dy - 2 * dx
+
+# Pixel coordinates
+x_pixels = [p[0] for p in pixels]
+y_pixels = [p[1] for p in pixels]
+
+# Graph
+plt.figure(figsize=(8, 6))
+
+plt.scatter(x_pixels, y_pixels, s=180)
+plt.plot(x_pixels, y_pixels, linestyle='--')
+
+plt.xticks(range(0, 11))
+plt.yticks(range(0, 10))
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.title("Bresenham's Line Drawing Algorithm")
+plt.grid(True)
+
+plt.show()

@@ -1,0 +1,152 @@
+import matplotlib.pyplot as plt
+
+# Clipping window
+xmin, ymin = 2, 2
+xmax, ymax = 8, 6
+
+# Original line
+x1, y1 = 0, 1
+x2, y2 = 10, 8
+
+
+# Cohen-Sutherland
+def code(x, y):
+    c = 0
+
+    if x < xmin:
+        c |= 1
+    elif x > xmax:
+        c |= 2
+
+    if y < ymin:
+        c |= 4
+    elif y > ymax:
+        c |= 8
+
+    return c
+
+
+def cohen_sutherland(x1, y1, x2, y2):
+    while True:
+        c1 = code(x1, y1)
+        c2 = code(x2, y2)
+
+        if c1 == 0 and c2 == 0:
+            return x1, y1, x2, y2
+
+        if c1 & c2:
+            return None
+
+        c = c1 if c1 != 0 else c2
+
+        if c & 8:
+            x = x1 + (x2-x1) * (ymax-y1) / (y2-y1)
+            y = ymax
+        elif c & 4:
+            x = x1 + (x2-x1) * (ymin-y1) / (y2-y1)
+            y = ymin
+        elif c & 2:
+            y = y1 + (y2-y1) * (xmax-x1) / (x2-x1)
+            x = xmax
+        else:
+            y = y1 + (y2-y1) * (xmin-x1) / (x2-x1)
+            x = xmin
+
+        if c == c1:
+            x1, y1 = x, y
+        else:
+            x2, y2 = x, y
+
+
+# Liang-Barsky
+def liang_barsky(x1, y1, x2, y2):
+    dx = x2 - x1
+    dy = y2 - y1
+
+    p = [-dx, dx, -dy, dy]
+    q = [x1-xmin, xmax-x1, y1-ymin, ymax-y1]
+
+    u1 = 0
+    u2 = 1
+
+    for pi, qi in zip(p, q):
+        if pi == 0:
+            if qi < 0:
+                return None
+        else:
+            u = qi / pi
+
+            if pi < 0:
+                u1 = max(u1, u)
+            else:
+                u2 = min(u2, u)
+
+    if u1 > u2:
+        return None
+
+    return (
+        x1 + u1*dx,
+        y1 + u1*dy,
+        x1 + u2*dx,
+        y1 + u2*dy
+    )
+
+
+cs = cohen_sutherland(x1, y1, x2, y2)
+lb = liang_barsky(x1, y1, x2, y2)
+
+
+# Plot
+fig, ax = plt.subplots(1, 2, figsize=(12, 5))
+
+# Cohen-Sutherland
+ax[0].plot([x1, x2], [y1, y2], '--', label="Original Line")
+
+ax[0].plot(
+    [cs[0], cs[2]],
+    [cs[1], cs[3]],
+    linewidth=4,
+    label="Clipped Line"
+)
+
+ax[0].plot(
+    [xmin, xmax, xmax, xmin, xmin],
+    [ymin, ymin, ymax, ymax, ymin],
+    linewidth=2,
+    label="Clipping Window"
+)
+
+ax[0].set_title("Cohen-Sutherland")
+ax[0].set_xlabel("X")
+ax[0].set_ylabel("Y")
+ax[0].grid(True)
+ax[0].legend()
+ax[0].axis("equal")
+
+
+# Liang-Barsky
+ax[1].plot([x1, x2], [y1, y2], '--', label="Original Line")
+
+ax[1].plot(
+    [lb[0], lb[2]],
+    [lb[1], lb[3]],
+    linewidth=4,
+    label="Clipped Line"
+)
+
+ax[1].plot(
+    [xmin, xmax, xmax, xmin, xmin],
+    [ymin, ymin, ymax, ymax, ymin],
+    linewidth=2,
+    label="Clipping Window"
+)
+
+ax[1].set_title("Liang-Barsky")
+ax[1].set_xlabel("X")
+ax[1].set_ylabel("Y")
+ax[1].grid(True)
+ax[1].legend()
+ax[1].axis("equal")
+
+plt.tight_layout()
+plt.show()
